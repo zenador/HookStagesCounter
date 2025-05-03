@@ -1,4 +1,5 @@
 import contextlib
+import json
 from base64 import b64decode
 from ctypes import windll
 from io import BytesIO
@@ -10,6 +11,7 @@ from HookStageIcon import HOOK_ICO_BASE64, HOOK_IMG_BASE64
 
 NUM_SURVIVORS = 4
 NUM_STAGES = 2
+SETTINGS_FILE = 'hook_stage_settings.json'
 
 class HookStagesWindow:
     def __init__(self):
@@ -29,6 +31,7 @@ class HookStagesWindow:
         self._root_height = int(self._root_width * 10)
         # print(f'{self._root_x=}, {self._root_y=}, {self._root_width=}, {self._root_height=}')
         self._root.geometry(f'{self._root_width}x{self._root_height}+{self._root_x}+{self._root_y}')
+        self.load_window_position()
 
         hook_img_width = self._root_width // 2
         hook_img_height = hook_img_width * 4 // 3
@@ -117,6 +120,18 @@ class HookStagesWindow:
             self.counter[n] -= 1
             self.hooks[n][self.counter[n]].config(image='')
 
+    def save_window_position(self):
+        with open(SETTINGS_FILE, 'w') as f:
+            json.dump({'x': self._root.winfo_x(), 'y': self._root.winfo_y(), 'geometry': self._root.geometry()}, f)
+
+    def load_window_position(self):
+        try:
+            with open(SETTINGS_FILE, 'r') as f:
+                pos = json.load(f)
+                self._root.geometry(pos['geometry'])
+        except:
+            pass
+
     def _set_window(self):
         """
         在任务栏上显示
@@ -130,8 +145,13 @@ class HookStagesWindow:
         self._root.withdraw()
         self._root.after(10, self._root.deiconify)
 
+    def _on_closing(self):
+        self.save_window_position()
+        self._root.destroy()
+
     def run(self):
         self._root.after(10, self._set_window)
+        self._root.wm_protocol("WM_DELETE_WINDOW", self._on_closing)
         self._root.mainloop()
 
 

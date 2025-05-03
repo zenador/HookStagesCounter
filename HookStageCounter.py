@@ -10,4 +10,6 @@ if __name__ == '__main__':
     for i in range(NUM_SURVIVORS):
         reg_key(str(i + 1), i, w)
     on_press_key('0', lambda event: w.reset_hook())
+    # on_press_key('s', lambda event: w.save_window_position())
+    # on_press_key('l', lambda event: w.load_window_position())
     w.run()

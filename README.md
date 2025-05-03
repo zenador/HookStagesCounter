@@ -25,6 +25,7 @@ As described in the introduction,**Killer** can track hooks stages of **Survivor
 * Focus the window to move the window or set the window size.
 
   *"maybe. This stupid thing should look better."*
+* Upon closing, window dimensions and positions are saved to a .json file with the filename based on the executable's. The same settings will be restored upon opening.
 
 ## Why HookStageCounter?
 
