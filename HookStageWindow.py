@@ -8,6 +8,9 @@ from PIL import ImageTk, Image
 from win32.lib.win32con import WS_EX_TOOLWINDOW, WS_EX_APPWINDOW, GWL_EXSTYLE
 from HookStageIcon import HOOK_ICO_BASE64, HOOK_IMG_BASE64
 
+NUM_SURVIVORS = 4
+NUM_STAGES = 2
+
 class HookStagesWindow:
     def __init__(self):
         self.start_abs_x, self.start_abs_y, self.start_width, self.start_height = None, None, None, None
@@ -34,17 +37,17 @@ class HookStagesWindow:
 
         frame = Frame(self._root, bg='black')
         frame.pack(side=constants.TOP, fill=constants.BOTH, expand=1)
-        self.hooks = [[Label(frame, background='black') for _ in range(2)] for _ in range(4)]
-        self.counter = [0, 0, 0, 0]
+        self.hooks = [[Label(frame, background='black') for _ in range(NUM_STAGES)] for _ in range(NUM_SURVIVORS)]
+        self.counter = [0] * NUM_SURVIVORS
         self.layout_hook()
 
         self.post_label = Label(self._root, bg='#2980b9')
         self.post_label.bind('<Button-1>', self._get_point)
         self.post_label.bind("<B1-Motion>", self._motion_call)
 
-        self.size_label = [Label(self._root, bg='#27ae60'), Label(self._root, bg='#27ae60')]
-        self.size_label[0].bind("<B1-Motion>", self._zoom_call)
-        self.size_label[1].bind("<B1-Motion>", self._zoom_call)
+        self.size_label = [Label(self._root, bg='#27ae60')] * 2
+        for i in range(2):
+            self.size_label[i].bind("<B1-Motion>", self._zoom_call)
 
         self._root.bind('<FocusIn>', self._alt_press_call)
         self._root.bind('<FocusOut>', self._alt_release_call)
@@ -52,8 +55,8 @@ class HookStagesWindow:
 
     def layout_hook(self):
         for i in range(len(self.hooks)):
-            self.hooks[i][0].place(anchor=constants.W, relx=0, rely=(0.1 + 0.25 * i))
-            self.hooks[i][1].place(anchor=constants.W, relx=0.5, rely=(0.1 + 0.25 * i))
+            for j in range(len(self.hooks[i])):
+                self.hooks[i][j].place(anchor=constants.W, relx=j / NUM_STAGES, rely=(0.1 + i / NUM_SURVIVORS))
 
     def _get_point(self, event):
         """获取当前窗口位置并保存"""
@@ -93,16 +96,17 @@ class HookStagesWindow:
         self._root.attributes('-transparentcolor', 'black')
         self._root.attributes('-alpha', 1)
         self.post_label.place_forget()
-        self.size_label[0].place_forget()
-        self.size_label[1].place_forget()
+        for i in range(2):
+            self.size_label[i].place_forget()
 
     def reset_hook(self):
-        self.counter = [0, 0, 0, 0]
-        for l1, l2 in self.hooks:
-            l1.config(image=''), l2.config(image='')
+        self.counter = [0] * NUM_SURVIVORS
+        for hook in self.hooks:
+            for l in hook:
+                l.config(image='')
 
     def show_hook(self, n: int):
-        if self.counter[n] < 2:
+        if self.counter[n] < NUM_STAGES:
             # print(f"show player_{n} hook {self.counter[n]} to {self.counter[n] + 1}")
             self.hooks[n][self.counter[n]].config(image=self.hook_img)
             self.counter[n] += 1
@@ -133,12 +137,7 @@ class HookStagesWindow:
 
 if __name__ == "__main__":
     window = HookStagesWindow()
-    window.show_hook(0)
-    window.show_hook(0)
-    window.show_hook(1)
-    window.show_hook(1)
-    window.show_hook(2)
-    window.show_hook(2)
-    window.show_hook(3)
-    window.show_hook(3)
+    for i in range(NUM_SURVIVORS):
+        window.show_hook(i)
+        window.show_hook(i)
     window.run()

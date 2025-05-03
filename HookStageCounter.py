@@ -1,11 +1,13 @@
-from HookStageWindow import HookStagesWindow
+from HookStageWindow import HookStagesWindow, NUM_SURVIVORS
 from keyboard import on_press_key
+
+def reg_key(key, i, w):
+    # For some reason the loop only works through a function, not directly
+    on_press_key(key, lambda event: w.show_hook(i) if event.name == key else w.hide_hook(i))
 
 if __name__ == '__main__':
     w = HookStagesWindow()
-    on_press_key('1', lambda event: w.show_hook(0) if event.name == '1' else w.hide_hook(0))
-    on_press_key('2', lambda event: w.show_hook(1) if event.name == '2' else w.hide_hook(1))
-    on_press_key('3', lambda event: w.show_hook(2) if event.name == '3' else w.hide_hook(2))
-    on_press_key('4', lambda event: w.show_hook(3) if event.name == '4' else w.hide_hook(3))
+    for i in range(NUM_SURVIVORS):
+        reg_key(str(i + 1), i, w)
     on_press_key('0', lambda event: w.reset_hook())
     w.run()
