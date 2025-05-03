@@ -27,6 +27,8 @@ As described in the introduction,**Killer** can track hooks stages of **Survivor
   *"maybe. This stupid thing should look better."*
 * Upon closing, window dimensions and positions are saved to a .json file with the filename based on the executable's. The same settings will be restored upon opening.
 
+* If you rename the executable to include an `8` in the filename, this will track 8 survivors for the 2v8 mode instead.
+
 ## Why HookStageCounter?
 
 With [6.5.0](https://support.deadbydaylight.com/hc/en-us/articles/12635716723988-6-5-0-Mid-Chapter) and [6.5.1](https://support.deadbydaylight.com/hc/en-us/articles/12820574058260-6-5-1-Patch-Notes) patch release(also news that [Eruption Nerf](https://twitter.com/DeadByBHVR/status/1624060668449095680)), the killer's life became more difficult. So I hope to give them some sweetness.

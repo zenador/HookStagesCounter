@@ -9,12 +9,12 @@ from PIL import ImageTk, Image
 from win32.lib.win32con import WS_EX_TOOLWINDOW, WS_EX_APPWINDOW, GWL_EXSTYLE
 from HookStageIcon import HOOK_ICO_BASE64, HOOK_IMG_BASE64
 
-NUM_SURVIVORS = 4
-NUM_STAGES = 2
-SETTINGS_FILE = 'hook_stage_settings.json'
-
 class HookStagesWindow:
-    def __init__(self):
+    def __init__(self, num_survivors, num_stages, settings_file):
+        self.num_survivors = num_survivors
+        self.num_stages = num_stages
+        self.settings_file = settings_file
+
         self.start_abs_x, self.start_abs_y, self.start_width, self.start_height = None, None, None, None
 
         self._root = Tk()
@@ -40,8 +40,8 @@ class HookStagesWindow:
 
         frame = Frame(self._root, bg='black')
         frame.pack(side=constants.TOP, fill=constants.BOTH, expand=1)
-        self.hooks = [[Label(frame, background='black') for _ in range(NUM_STAGES)] for _ in range(NUM_SURVIVORS)]
-        self.counter = [0] * NUM_SURVIVORS
+        self.hooks = [[Label(frame, background='black') for _ in range(self.num_stages)] for _ in range(self.num_survivors)]
+        self.counter = [0] * self.num_survivors
         self.layout_hook()
 
         self.post_label = Label(self._root, bg='#2980b9')
@@ -59,7 +59,7 @@ class HookStagesWindow:
     def layout_hook(self):
         for i in range(len(self.hooks)):
             for j in range(len(self.hooks[i])):
-                self.hooks[i][j].place(anchor=constants.W, relx=j / NUM_STAGES, rely=(0.1 + i / NUM_SURVIVORS))
+                self.hooks[i][j].place(anchor=constants.W, relx=j / self.num_stages, rely=(0.4 + i) / self.num_survivors)
 
     def _get_point(self, event):
         """获取当前窗口位置并保存"""
@@ -103,13 +103,13 @@ class HookStagesWindow:
             self.size_label[i].place_forget()
 
     def reset_hook(self):
-        self.counter = [0] * NUM_SURVIVORS
+        self.counter = [0] * self.num_survivors
         for hook in self.hooks:
             for l in hook:
                 l.config(image='')
 
     def show_hook(self, n: int):
-        if self.counter[n] < NUM_STAGES:
+        if self.counter[n] < self.num_stages:
             # print(f"show player_{n} hook {self.counter[n]} to {self.counter[n] + 1}")
             self.hooks[n][self.counter[n]].config(image=self.hook_img)
             self.counter[n] += 1
@@ -121,12 +121,12 @@ class HookStagesWindow:
             self.hooks[n][self.counter[n]].config(image='')
 
     def save_window_position(self):
-        with open(SETTINGS_FILE, 'w') as f:
+        with open(self.settings_file, 'w') as f:
             json.dump({'x': self._root.winfo_x(), 'y': self._root.winfo_y(), 'geometry': self._root.geometry()}, f)
 
     def load_window_position(self):
         try:
-            with open(SETTINGS_FILE, 'r') as f:
+            with open(self.settings_file, 'r') as f:
                 pos = json.load(f)
                 self._root.geometry(pos['geometry'])
         except:
@@ -157,7 +157,7 @@ class HookStagesWindow:
 
 if __name__ == "__main__":
     window = HookStagesWindow()
-    for i in range(NUM_SURVIVORS):
+    for i in range(self.num_survivors):
         window.show_hook(i)
         window.show_hook(i)
     window.run()
