@@ -49,6 +49,18 @@ Record the hook stage on the left side of each **Survivors**.
 
   *"Damn it, it's a little difficult. "*
 
+## Building
+
+### GitHub Actions
+
+Push a new version tag to the remote and download it from releases.
+
+### Docker
+
+From the base of the repository, run: `docker run -v "$(pwd):/src/" cdrx/pyinstaller-windows`
+
+Or, try with the local image: `docker build -t hsc .` and `docker run -v "$(pwd):/src/" hsc`
+
 ## Credits
 
 * Icons taken from [Dead_by_Daylight_Wiki](https://deadbydaylight.fandom.com/wiki/Dead_by_Daylight_Wiki).
