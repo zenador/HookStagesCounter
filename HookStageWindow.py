@@ -44,7 +44,6 @@ class HookStagesWindow:
         frame = Frame(self._root, bg='black')
         frame.pack(side=constants.TOP, fill=constants.BOTH, expand=1)
         self.hooks = [[Label(frame, background='black') for _ in range(self.num_stages)] for _ in range(self.num_survivors)]
-        self.coloured_hooks = [False for _ in range(self.num_survivors)]
         self.counter = [0] * self.num_survivors
         self.layout_hook()
 
@@ -112,10 +111,10 @@ class HookStagesWindow:
             for l in hook:
                 l.config(image='')
 
-    def show_hook(self, n: int):
+    def show_hook(self, n: int, coloured: bool = False):
         if self.counter[n] < self.num_stages:
             # print(f"show player_{n} hook {self.counter[n]} to {self.counter[n] + 1}")
-            hook_img = self.coloured_hook_img if self.coloured_hooks[n] else self.hook_img
+            hook_img = self.coloured_hook_img if coloured else self.hook_img
             self.hooks[n][self.counter[n]].config(image=hook_img)
             self.counter[n] += 1
 
@@ -124,22 +123,6 @@ class HookStagesWindow:
             # print(f"hide player_{n} hook {self.counter[n]} to {self.counter[n] - 1}")
             self.counter[n] -= 1
             self.hooks[n][self.counter[n]].config(image='')
-
-    def change_hook_colours(self, n: int):
-        for stage in range(self.counter[n]):
-            self.hooks[n][stage].config(image=self.coloured_hook_img)
-        self.coloured_hooks[n] = True
-                
-    def reset_hook_colours(self, n: int):
-        for stage in range(self.counter[n]):
-            self.hooks[n][stage].config(image=self.hook_img)
-        self.coloured_hooks[n] = False
-
-    def toggle_hook_colours(self, n: int):
-        if self.coloured_hooks[n]:
-            self.reset_hook_colours(n)
-        else:
-            self.change_hook_colours(n)
 
     def save_settings(self):
         with open(self.settings_file, 'w') as f:

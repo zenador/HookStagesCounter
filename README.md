@@ -15,6 +15,8 @@ As described in the introduction,**Killer** can track hooks stages of **Survivor
 
 * Stage growth: `1`, `2`, `3`, `4`
 
+* Stage growth with different colour: `Ctrl+1`, `Ctrl+2`, `Ctrl+3`, `Ctrl+4`
+
   *"Yes, you did a good job, probably."*
 * Stage decline: `Shift+1`, `Shift+2`, `Shift+3`, `Shift+4`
 
