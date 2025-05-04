@@ -5,7 +5,7 @@ from ctypes import windll
 from io import BytesIO
 from tkinter import Tk, Frame, Label, constants, PhotoImage
 from _tkinter import TclError
-from PIL import ImageTk, Image
+from PIL import ImageTk, Image, ImageOps
 from win32.lib.win32con import WS_EX_TOOLWINDOW, WS_EX_APPWINDOW, GWL_EXSTYLE
 from HookStageIcon import HOOK_ICO_BASE64, HOOK_IMG_BASE64
 
@@ -31,16 +31,20 @@ class HookStagesWindow:
         self._root_height = int(self._root_width * 10)
         # print(f'{self._root_x=}, {self._root_y=}, {self._root_width=}, {self._root_height=}')
         self._root.geometry(f'{self._root_width}x{self._root_height}+{self._root_x}+{self._root_y}')
-        self.load_window_position()
+        self.load_settings()
 
         hook_img_width = self._root_width // 2
         hook_img_height = hook_img_width * 4 // 3
-        self.hook_img = ImageTk.PhotoImage(
-            Image.open(BytesIO(b64decode(HOOK_IMG_BASE64))).resize((hook_img_width, hook_img_height)))
+        hook_img = Image.open(BytesIO(b64decode(HOOK_IMG_BASE64))).resize((hook_img_width, hook_img_height))
+        self.hook_img = ImageTk.PhotoImage(hook_img)
+
+        coloured_hook_img = ImageOps.colorize(hook_img.convert("L"), "#000000", self.hook_colour)
+        self.coloured_hook_img = ImageTk.PhotoImage(coloured_hook_img)
 
         frame = Frame(self._root, bg='black')
         frame.pack(side=constants.TOP, fill=constants.BOTH, expand=1)
         self.hooks = [[Label(frame, background='black') for _ in range(self.num_stages)] for _ in range(self.num_survivors)]
+        self.coloured_hooks = [False for _ in range(self.num_survivors)]
         self.counter = [0] * self.num_survivors
         self.layout_hook()
 
@@ -111,7 +115,8 @@ class HookStagesWindow:
     def show_hook(self, n: int):
         if self.counter[n] < self.num_stages:
             # print(f"show player_{n} hook {self.counter[n]} to {self.counter[n] + 1}")
-            self.hooks[n][self.counter[n]].config(image=self.hook_img)
+            hook_img = self.coloured_hook_img if self.coloured_hooks[n] else self.hook_img
+            self.hooks[n][self.counter[n]].config(image=hook_img)
             self.counter[n] += 1
 
     def hide_hook(self, n: int):
@@ -120,17 +125,40 @@ class HookStagesWindow:
             self.counter[n] -= 1
             self.hooks[n][self.counter[n]].config(image='')
 
-    def save_window_position(self):
-        with open(self.settings_file, 'w') as f:
-            json.dump({'x': self._root.winfo_x(), 'y': self._root.winfo_y(), 'geometry': self._root.geometry()}, f)
+    def change_hook_colours(self, n: int):
+        for stage in range(self.counter[n]):
+            self.hooks[n][stage].config(image=self.coloured_hook_img)
+        self.coloured_hooks[n] = True
+                
+    def reset_hook_colours(self, n: int):
+        for stage in range(self.counter[n]):
+            self.hooks[n][stage].config(image=self.hook_img)
+        self.coloured_hooks[n] = False
 
-    def load_window_position(self):
+    def toggle_hook_colours(self, n: int):
+        if self.coloured_hooks[n]:
+            self.reset_hook_colours(n)
+        else:
+            self.change_hook_colours(n)
+
+    def save_settings(self):
+        with open(self.settings_file, 'w') as f:
+            json.dump({
+                'x': self._root.winfo_x(),
+                'y': self._root.winfo_y(),
+                'geometry': self._root.geometry(),
+                'hook_colour': self.hook_colour,
+            }, f)
+
+    def load_settings(self):
+        DEFAULT_HOOK_COLOUR = "#00FF00"
         try:
             with open(self.settings_file, 'r') as f:
                 pos = json.load(f)
                 self._root.geometry(pos['geometry'])
+                self.hook_colour = pos.get('hook_colour', DEFAULT_HOOK_COLOUR)
         except:
-            pass
+            self.hook_colour = DEFAULT_HOOK_COLOUR
 
     def _set_window(self):
         """
@@ -146,7 +174,7 @@ class HookStagesWindow:
         self._root.after(10, self._root.deiconify)
 
     def _on_closing(self):
-        self.save_window_position()
+        self.save_settings()
         self._root.destroy()
 
     def run(self):

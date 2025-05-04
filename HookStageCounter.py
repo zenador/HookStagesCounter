@@ -1,6 +1,6 @@
 import sys, os
 from HookStageWindow import HookStagesWindow
-from keyboard import on_press_key
+from keyboard import on_press_key, add_hotkey
 
 def get_filename():
     def get_full_filename():
@@ -14,7 +14,9 @@ def get_filename():
 
 def reg_key(key, i, w):
     # For some reason the loop only works through a function, not directly
-    on_press_key(key, lambda event: w.show_hook(i) if event.name == key else w.hide_hook(i))
+    add_hotkey(key, lambda: w.show_hook(i))
+    add_hotkey('shift+'+key, lambda: w.hide_hook(i))
+    add_hotkey('ctrl+'+key, lambda: w.toggle_hook_colours(i))
 
 if __name__ == '__main__':
     filename = get_filename()
