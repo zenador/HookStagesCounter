@@ -14,7 +14,13 @@ def get_filename():
 
 def reg_key(key, i, w):
     # For some reason the loop only works through a function, not directly
-    on_press_key(key, lambda event: w.show_hook(i) if event.name == key else w.hide_hook(i))
+    def handle_key_press(event):
+        if event.name == key:
+            w.show_hook(i)
+        elif event.name != "end":
+            # There's a bug where the end key is somehow wrongly registered here, ignore it
+            w.hide_hook(i)
+    on_press_key(key, handle_key_press)
     add_hotkey('ctrl+'+key, lambda: w.colour_hook(i))
 
 if __name__ == '__main__':
