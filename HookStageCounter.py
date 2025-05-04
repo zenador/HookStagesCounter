@@ -14,9 +14,8 @@ def get_filename():
 
 def reg_key(key, i, w):
     # For some reason the loop only works through a function, not directly
-    add_hotkey(key, lambda: w.show_hook(i))
-    add_hotkey('shift+'+key, lambda: w.hide_hook(i))
-    add_hotkey('ctrl+'+key, lambda: w.show_hook(i, coloured=True))
+    on_press_key(key, lambda event: w.show_hook(i) if event.name == key else w.hide_hook(i))
+    add_hotkey('ctrl+'+key, lambda: w.colour_hook(i))
 
 if __name__ == '__main__':
     filename = get_filename()
