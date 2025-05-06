@@ -111,10 +111,11 @@ class HookStagesWindow:
             for l in hook:
                 l.config(image='')
 
-    def show_hook(self, n: int):
+    def show_hook(self, n: int, coloured: bool = False):
         if self.counter[n] < self.num_stages:
             # print(f"show player_{n} hook {self.counter[n]} to {self.counter[n] + 1}")
-            self.hooks[n][self.counter[n]].config(image=self.hook_img)
+            hook_img = self.coloured_hook_img if coloured else self.hook_img
+            self.hooks[n][self.counter[n]].config(image=hook_img)
             self.counter[n] += 1
 
     def hide_hook(self, n: int):
